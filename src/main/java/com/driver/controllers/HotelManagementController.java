@@ -29,18 +29,12 @@ public class HotelManagementController {
         //You need to add an hotel to the database
 
         //incase the hotelName is null or the hotel Object is null return an empty a FAILURE
-        if(hotel == null || hotel.getHotelName() == null){
-            return "FAILURE";
-        }
-        Hotel  Addedhotel = userService.addHotel(hotel);
+
+        String Addedhotel = userService.addHotel(hotel);
         //Incase somebody is trying to add the duplicate hotelName return FAILURE
-        if(Addedhotel == null){
-            return "FAILURE";
-        }
+
         //in all other cases return SUCCESS after successfully adding the hotel to the hotelDb.
-        else{
-            return "SUCCESS";
-        }
+       return Addedhotel;
     }
 
     @PostMapping("/add-user")

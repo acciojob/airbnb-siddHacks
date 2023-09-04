@@ -18,13 +18,33 @@ public class UserRepository {
     HashMap<Integer,List<Booking>> bookingByPersonHashMap = new HashMap<>();
 
 
-    public Hotel addHotel(Hotel hotel) {
-        if(hotelHashMap.containsKey(hotel)){
-            return null;
-        }else{
-            hotelHashMap.put(hotel.getHotelName(),hotel);
-            return hotel;
+    private String hotelWithMaxFacility = "";
+    private int maxFacilitiesCount = 0;
+    public String addHotel(Hotel hotel) {
+        if(hotel==null){
+            return "FAILURE";
         }
+        String key = hotel.getHotelName();
+        if(key==null){
+            return "FAILURE";
+        }
+        if(hotelHashMap.containsKey(key)){
+            return "FAILURE";
+        }
+        hotelHashMap.put(key,hotel);
+
+        int countOfFacilitiesInHotel=hotel.getFacilities().size();
+        if(countOfFacilitiesInHotel>=maxFacilitiesCount){
+            if(countOfFacilitiesInHotel==maxFacilitiesCount){
+                if(hotel.getHotelName().compareTo(hotelWithMaxFacility)<0){
+                    hotelWithMaxFacility = hotel.getHotelName();
+                }
+            }else{
+                maxFacilitiesCount = countOfFacilitiesInHotel;
+                hotelWithMaxFacility = hotel.getHotelName();
+            }
+        }
+        return "SUCCESS";
     }
 
     public int addUser(User user) {
@@ -33,27 +53,7 @@ public class UserRepository {
     }
 
     public String getHotelWithMostFacilities() {
-        String hotelWithMostFacility = null;
-        int numFacility = 0;
-        for(Map.Entry<String , List<Facility>> entry : listFacilityHashMap.entrySet()){
-            String key = entry.getKey();
-            List<Facility> facilities = entry.getValue();
-
-            if(numFacility <=  facilities.size()){
-                if(numFacility == facilities.size()){
-                    int len1 = hotelWithMostFacility.length();
-                    int len2 = key.length();
-                    if(len1 > len2){
-                        hotelWithMostFacility = key;
-                    }
-                    break;
-                }
-                numFacility = facilities.size();
-
-                hotelWithMostFacility = key;
-            }
-        }
-        return hotelWithMostFacility;
+        return hotelWithMaxFacility;
     }
 
     public int bookAroom(Booking booking) {
@@ -82,13 +82,29 @@ public class UserRepository {
     }
 
     public Hotel updateFacility(List<Facility> newFacilities, String hotelName) {
-        Hotel hotel = hotelHashMap.get(hotelName);
-        List<Facility> facilities = hotel.getFacilities();
-
-        if (!facilities.equals(newFacilities)) {
-            hotel.setFacilities(newFacilities);
-            hotelHashMap.getOrDefault(hotelName,hotel);
+        if(!hotelHashMap.containsKey(hotelName)){
+            return new Hotel();
         }
-        return hotel;
+
+        Hotel currHotel = hotelHashMap.get(hotelName);
+
+        for(Facility facility: newFacilities){
+            if(!currHotel.getFacilities().contains(facility)){
+                currHotel.getFacilities().add(facility);
+            }
+        }
+
+        int countOfFacilities = currHotel.getFacilities().size();
+        if(countOfFacilities>=maxFacilitiesCount){
+            if(countOfFacilities==maxFacilitiesCount){
+                if(currHotel.getHotelName().compareTo(hotelWithMaxFacility)<0){
+                    hotelWithMaxFacility = currHotel.getHotelName();
+                }
+            }else{
+                maxFacilitiesCount = countOfFacilities;
+                hotelWithMaxFacility = currHotel.getHotelName();
+            }
+        }
+        return currHotel;
     }
 }

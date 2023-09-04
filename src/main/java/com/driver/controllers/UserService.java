@@ -14,7 +14,7 @@ public class UserService {
     UserRepository userRepository = new UserRepository();
 
 
-    public Hotel addHotel(Hotel hotel) {
+    public String addHotel(Hotel hotel) {
 
         return userRepository.addHotel(hotel);
     }
