@@ -4,20 +4,16 @@ import com.driver.model.Booking;
 import com.driver.model.Facility;
 import com.driver.model.Hotel;
 import com.driver.model.User;
-import org.springframework.stereotype.Repository;
 
 import java.util.*;
 
 
-public class UserRepository {
+public class HotelManagementRepository {
 
     HashMap<String,Hotel> hotelHashMap = new HashMap<>();
     HashMap<Integer,User> userHashMap = new HashMap<>();
-    HashMap<String, List<Facility>> listFacilityHashMap = new HashMap<>();
     HashMap<String, Booking> bookingHashMap = new HashMap<>();
-    HashMap<Integer,List<Booking>> bookingByPersonHashMap = new HashMap<>();
-
-
+    HashMap<Integer,List<Booking>> userBookingList = new HashMap<>();
     private String hotelWithMaxFacility = "";
     private int maxFacilitiesCount = 0;
     public String addHotel(Hotel hotel) {
@@ -45,43 +41,41 @@ public class UserRepository {
             }
         }
         return "SUCCESS";
+
     }
 
-    public int addUser(User user) {
+    public Integer addUser(User user) {
         userHashMap.put(user.getaadharCardNo(),user);
         return user.getaadharCardNo();
     }
 
-    public String getHotelWithMostFacilities() {
+    public String getHOtelWithMostFacilities() {
         return hotelWithMaxFacility;
     }
 
-    public int bookAroom(Booking booking) {
-        UUID randomUUID = UUID.randomUUID();
-        String bookingId = randomUUID.toString();
-        booking.setBookingId(bookingId);
-
-        String hotelName = booking.getHotelName();
-        Hotel hotel = hotelHashMap.get(hotelName);
-       int pricePerNight = hotel.getPricePerNight();
-       int availableRooms = hotel.getAvailableRooms();
-       int totalAmount = 0;
-       if(booking.getNoOfRooms() > availableRooms){
-           return -1;
-       }else{
-           totalAmount = pricePerNight * availableRooms;
-           booking.setAmountToBePaid(totalAmount);
-           bookingHashMap.put(bookingId,booking);
-           return totalAmount;
-       }
+    public int bookARoom(Booking booking) {
+        Hotel hotelToBeBooked = hotelHashMap.get(booking.getHotelName());
+        if(booking.getNoOfRooms()>hotelToBeBooked.getAvailableRooms()){
+            return -1;
+        }
+        else{
+            hotelToBeBooked.setAvailableRooms(hotelToBeBooked.getAvailableRooms()-booking.getNoOfRooms());
+            booking.setBookingId(String.valueOf(UUID.randomUUID()));
+            booking.setAmountToBePaid(booking.getNoOfRooms() * hotelToBeBooked.getPricePerNight());
+            bookingHashMap.put(booking.getBookingId(), booking);
+            if(!userBookingList.containsKey(booking.getBookingAadharCard())){
+                userBookingList.put(booking.getBookingAadharCard(), new ArrayList<>());
+            }
+            userBookingList.get(booking.getBookingAadharCard()).add(booking);
+            return booking.getAmountToBePaid();
+        }
     }
 
-    public int getBookingsByPerson(Integer aadharCard) {
-       List<Booking> listBooking = bookingByPersonHashMap.get(aadharCard);
-       return listBooking.size();
+    public int getBookings(Integer aadharCard) {
+        return userBookingList.get(aadharCard).size();
     }
 
-    public Hotel updateFacility(List<Facility> newFacilities, String hotelName) {
+    public Hotel updateFacilities(List<Facility> newFacilities, String hotelName) {
         if(!hotelHashMap.containsKey(hotelName)){
             return new Hotel();
         }
@@ -106,5 +100,6 @@ public class UserRepository {
             }
         }
         return currHotel;
+
     }
 }
