@@ -1,5 +1,7 @@
 package com.driver.model;
 
+import java.util.List;
+
 public enum Facility {
 
     GYM,
@@ -7,5 +9,7 @@ public enum Facility {
     BAR,
     FOOD,
     PARKING,
-    LAUNDRY
+    LAUNDRY;
+
+
 }
