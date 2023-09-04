@@ -8,7 +8,7 @@ import org.springframework.stereotype.Repository;
 
 import java.util.*;
 
-@Repository
+
 public class UserRepository {
 
     HashMap<String,Hotel> hotelHashMap = new HashMap<>();
